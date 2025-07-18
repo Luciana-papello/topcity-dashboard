@@ -4,4 +4,8 @@ __pycache__/
 *.xlsx
 .env
 credentials.json
-.streamlit/
+# Ignora tudo da pasta .streamlit...
+.streamlit/*
+
+# ...exceto o arquivo secrets.toml, que precisa estar no GitHub
+!.streamlit/secrets.toml
