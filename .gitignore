@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.csv
+*.xlsx
+.env
+credentials.json
+.streamlit/
