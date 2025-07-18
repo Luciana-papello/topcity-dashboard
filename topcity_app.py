@@ -31,8 +31,7 @@ def format_integer_br(value):
 
 # Configuração da página
 st.set_page_config(
-    page_title="Dashboard TopCity",
-    
+    page_title="Dashboard TopCity", 
     page_icon="🏙️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -207,7 +206,7 @@ if st.sidebar.button("🔄 Resetar Filtros"):
     st.session_state['selected_cidades'] = []
     st.session_state['selected_produtos'] = []
     # Recarrega a página para aplicar o reset
-    st.rerun()
+    st.experimental_rerun()
 
 # Recupera valores padrão ou do session_state
 min_date = df['Mês'].min()
