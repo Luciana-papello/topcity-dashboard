@@ -32,11 +32,17 @@ def format_integer_br(value):
 # Configuração da página
 st.set_page_config(
     page_title="Dashboard TopCity",
+    
     page_icon="🏙️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+senha_correta = st.secrets.get("app_password", "papello123")  # senha padrão, se secrets não existir
+senha = st.text_input("🔒 Digite a senha para acessar o dashboard:", type="password")
 
+if senha != senha_correta:
+    st.warning("Acesso restrito. Insira a senha correta para continuar.")
+    st.stop()
 # CSS personalizado para visual mais bonito
 st.markdown("""
 <style>
