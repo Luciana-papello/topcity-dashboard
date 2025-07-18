@@ -37,9 +37,10 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-senha_correta = st.secrets.get("app_password", "papello123")  # senha padrão, se secrets não existir
+senha_correta = st.secrets["app_password"]
 senha = st.text_input("🔒 Digite a senha para acessar o dashboard:", type="password")
-
+with st.sidebar:
+    senha = st.text_input("🔒 Digite a senha para acessar o dashboard:", type="password")
 if senha != senha_correta:
     st.warning("Acesso restrito. Insira a senha correta para continuar.")
     st.stop()
