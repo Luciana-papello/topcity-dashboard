@@ -38,12 +38,23 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 senha_correta = st.secrets["app_password"]
-senha = st.text_input("🔒 Digite a senha para acessar o dashboard:", type="password")
-with st.sidebar:
-    senha = st.text_input("🔒 Digite a senha para acessar o dashboard:", type="password")
-if senha != senha_correta:
-    st.warning("Acesso restrito. Insira a senha correta para continuar.")
-    st.stop()
+
+# Controle de autenticação na sessão
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+
+# Se não estiver autenticado, mostra campo de senha
+if not st.session_state.autenticado:
+    with st.container():
+        st.markdown("### 🔐 Acesso Restrito")
+        senha = st.text_input("Digite a senha para acessar o dashboard:", type="password")
+        if senha == senha_correta:
+            st.session_state.autenticado = True
+            st.success("✅ Acesso liberado com sucesso!")
+            st.experimental_rerun()
+        elif senha != "":
+            st.error("❌ Senha incorreta. Tente novamente.")
+    st.stop() 
 # CSS personalizado para visual mais bonito
 st.markdown("""
 <style>
