@@ -29,71 +29,40 @@ def format_integer_br(value):
     s_value = s_value.replace(",", "X").replace(".", ",").replace("X", ".")
     return s_value
 
+import streamlit as st
+
 # Configuração da página
 st.set_page_config(
-    page_title="Dashboard TopCity", 
+    page_title="Dashboard TopCity",
     page_icon="🏙️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- Senha segura vinda do secrets
-senha_correta = st.secrets.get("app_password", "papello123")
+# Pega a senha do arquivo secrets
+senha_correta = st.secrets["app_password"]
 
-# --- Inicializa controle de autenticação
+# Inicializa controle de sessão
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
-# --- Mostra formulário se não autenticado
+# Tela de login
 if not st.session_state.autenticado:
     with st.container():
-        st.markdown("""
-            <style>
-            .login-box {
-                background-color: #f9f9f9;
-                padding: 2rem;
-                border-radius: 10px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                max-width: 400px;
-                margin: auto;
-            }
-            </style>
-            <div class="login-box">
-            <h3>🔐 Acesso Restrito</h3>
-        """, unsafe_allow_html=True)
-        
+        st.markdown("## 🔐 Acesso Restrito")
         senha = st.text_input("Digite a senha para acessar:", type="password")
 
         if senha == senha_correta:
             st.session_state.autenticado = True
             st.success("✅ Acesso liberado com sucesso!")
-            st.stop()  # impede execução do resto antes da nova renderização
-        elif senha:
+            st.experimental_rerun()
+        elif senha != "":
             st.error("❌ Senha incorreta. Tente novamente.")
-
-        st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# Controle de autenticação na sessão
-# Verifica se usuário está autenticado
-if "autenticado" not in st.session_state:
-    st.session_state.autenticado = False
+# ✅ Conteúdo protegido: só aparece após login
+st.markdown("# 📊 Dashboard de Análise de Produtos e Cidades")
 
-if not st.session_state.autenticado:
-    st.markdown("### 🔐 Acesso Restrito")
-    senha = st.text_input("Digite a senha para acessar:", type="password")
-    
-    if senha == senha_correta:
-        st.session_state.autenticado = True
-        st.success("✅ Acesso liberado com sucesso!")
-
-        # Força um "refresh" visual simulando redirecionamento
-        st.markdown("""<meta http-equiv="refresh" content="0">""", unsafe_allow_html=True)
-        st.stop()
-
-    elif senha != "":
-        st.error("❌ Senha incorreta. Tente novamente.")
-        st.stop() 
 # CSS personalizado para visual mais bonito
 st.markdown("""
 <style>
