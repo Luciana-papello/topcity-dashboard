@@ -1,35 +1,11 @@
-# Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-*.egg-info/
-.pytest_cache/
-
-# IDEs
-.vscode/
-.idea/
-
-# macOS
-.DS_Store
-
-# Windows
-Thumbs.db
-
-# Logs
-*.log
-
-# Arquivos de dados gerados localmente ou sensíveis
 *.csv
 *.xlsx
 .env
 credentials.json
-local_data/ # Exemplo: se tiver uma pasta com dados locais
+# Ignora tudo da pasta .streamlit...
+.streamlit/*
 
-# Streamlit-specific
-.streamlit/cache/        # Cache interno do Streamlit
-.streamlit/secrets.toml  # <<< ESTE É CRÍTICO! AGORA ESTÁ CORRETO. VAI SER IGNORADO.
+# ...exceto o arquivo secrets.toml, que precisa estar no GitHub
+!.streamlit/secrets.toml
