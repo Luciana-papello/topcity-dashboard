@@ -67,8 +67,7 @@ if not st.session_state.autenticado:
         if senha == senha_correta:
             st.session_state.autenticado = True
             st.success("✅ Acesso liberado com sucesso!")
-            st.markdown("<meta http-equiv='refresh' content='0'>", unsafe_allow_html=True)
-            st.stop()
+            st.stop()  # impede execução do resto antes da nova renderização
         elif senha:
             st.error("❌ Senha incorreta. Tente novamente.")
 
