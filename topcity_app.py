@@ -862,98 +862,49 @@ with col2:
             mime="text/csv"
         )
 
-        st.markdown("---")
-st.header("🤖 Chatbot de Análise de Dados")
+# --- NOVO: CHAT DIRETO COM OS DADOS USANDO PANDASAI --- #
+from pandasai import SmartDataframe
+from pandasai.llm.openai import OpenAI
 
-# Certifique-se de que sua chave da OpenAI está no arquivo .streamlit/secrets.toml
+st.markdown("---")
+st.header("🧠 Chat com os Dados Reais (via pandasai)")
+
 try:
-    openai.api_key = st.secrets["openai_api_key"]
+    openai_api_key = st.secrets["openai_api_key"]
 except Exception:
     st.error("Erro: Chave da OpenAI não encontrada.")
-    st.warning("Adicione sua chave em `.streamlit/secrets.toml` como `openai_api_key = 'SUA_CHAVE'`.")
     st.stop()
 
-# Inicializa histórico de mensagens
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+query = st.chat_input("Pergunte livremente sobre os dados filtrados...")
 
-# Exibe histórico de mensagens anteriores
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+if query:
+    with st.spinner("Analisando os dados filtrados..."):
+        try:
+            # Prompt melhorado: orienta o modelo sobre estilo, idioma e foco
+            custom_prompt = f"""
+Você é um analista de dados especialista em vendas da empresa Papello. 
+Responda sempre em português, com clareza, objetividade e com base no DataFrame de vendas que será analisado abaixo.
 
-# Input do usuário
-if prompt := st.chat_input("Pergunte algo sobre os dados..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+Se a pergunta envolver produtos, cidades, estados ou meses, use apenas os dados atualmente filtrados (armazenados no DataFrame chamado `df_filtrado`). 
+Evite "chutar" informações: se não puder responder com base no DataFrame atual, diga que os dados disponíveis não permitem.
 
-    # --- CONTEXTO PARA A RESPOSTA --- #
-    kpi_context = f"""
-    Indicadores:
-    - Faturamento Total: {format_currency_br(total_faturamento)}
-    - Total de Pedidos: {format_integer_br(total_pedidos_kpi)}
-    - Unidades Compradas: {format_integer_br(total_unidades_fisicas)}
-    - Ticket Médio Geral: {format_currency_br(ticket_medio_geral)}
-    - Participação Média no Faturamento: {media_participacao_faturamento:,.2f}%
-    """
+💡 Formatação:
+- Use sempre o formato R$ 1.234,56 para valores monetários.
+- Use ponto (.) como separador de milhar para inteiros.
+- Use vírgula e duas casas decimais para porcentagens (%).
 
-    top_produtos_context = ""
-    if 'top_produtos' in locals() and not top_produtos.empty:
-        top_produtos_context = "Top Produtos:\n" + "\n".join(
-            f"- {row['Produto']}: {format_currency_br(row['Total']) if 'Faturamento' in metric_produto else format_integer_br(row['Total'])}"
-            for _, row in top_produtos.iterrows()
-        )
+Se a pergunta for genérica, tente responder com base em estatísticas, agrupamentos ou totais do DataFrame.
+"""
 
-    top_cidades_context = ""
-    if 'top_cidades' in locals() and not top_cidades.empty:
-        top_cidades_context = "Top Cidades:\n" + "\n".join(
-            f"- {row['Cidade']}: {format_currency_br(row['Total']) if 'Faturamento' in metric_cidade else format_integer_br(row['Total'])}"
-            for _, row in top_cidades.iterrows()
-        )
-
-    top_estados_context = ""
-    if 'top_estados' in locals() and not top_estados.empty:
-        top_estados_context = "Top Estados:\n" + "\n".join(
-            f"- {row['Estado']}: {format_currency_br(row['Total']) if 'Faturamento' in metric_estado else format_integer_br(row['Total'])}"
-            for _, row in top_estados.iterrows()
-        )
-
-    comparativos_context = ""
-    if 'fat_perc_prev' in locals():
-        comparativos_context = f"""
-        Comparativos:
-        - Faturamento vs. Mês Anterior: {format_currency_br(fat_diff_prev)} ({fat_perc_prev:,.2f}%)
-        - Pedidos vs. Mês Anterior: {format_integer_br(ped_diff_prev)} ({ped_perc_prev:,.2f}%)
-        - Faturamento vs. Média 3 Meses: {format_currency_br(fat_diff_3m)} ({fat_perc_3m:,.2f}%)
-        - Pedidos vs. Média 3 Meses: {format_integer_br(ped_diff_3m)} ({ped_perc_3m:,.2f}%)
-        """
-
-    context_block = f"""
-    Você é um assistente especialista em análise de dados de vendas da empresa Papello.
-    Use os dados abaixo para responder de forma direta, clara e objetiva. Utilize reais brasileiros no formato R$ 1.234,56.
-
-    {kpi_context}
-    {top_produtos_context}
-    {top_cidades_context}
-    {top_estados_context}
-    {comparativos_context}
-    """
-
-    messages_for_openai = [{"role": "system", "content": context_block}]
-    messages_for_openai += st.session_state.messages
-
-    with st.chat_message("assistant"):
-        with st.spinner("Analisando..."):
-            try:
-                response = openai.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=messages_for_openai,
-                    temperature=0.5,
-                    max_tokens=500
-                )
-                answer = response.choices[0].message.content
-                st.markdown(answer)
-                st.session_state.messages.append({"role": "assistant", "content": answer})
-            except Exception as e:
-                st.error(f"Erro ao conectar com a OpenAI: {e}")
+            llm = OpenAI(api_token=openai_api_key)
+            sdf = SmartDataframe(df_filtrado, config={
+                "llm": llm,
+                "custom_prompt": custom_prompt,
+                "enable_cache": False,
+                "verbose": False,
+            })
+            resposta = sdf.chat(query)
+            st.success("Resposta baseada nos dados filtrados:")
+            st.markdown(resposta)
+        except Exception as e:
+            st.error(f"Erro ao processar a pergunta: {e}")
