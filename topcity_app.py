@@ -519,28 +519,23 @@ with tab_cidades:
     )
     n_cidades = st.slider("Número de Cidades no Top N:", min_value=5, max_value=20, value=10, key='n_cidades_tab')
 
-    # Agregação correta para Top Cidades por Faturamento (condicional)
-    if selected_produtos: # Se produtos são filtrados, use faturamento/pedidos/unidades dos produtos
+    if selected_produtos:
         if metric_cidade == "Faturamento Total da Cidade no Mês":
             top_cidades = df_filtrado.groupby('Cidade')['Faturamento do Produto'].sum().astype(float).nlargest(n_cidades).reset_index()
         elif metric_cidade == "Unidades Compradas":
             top_cidades = df_filtrado.groupby('Cidade')['Unidades Compradas'].sum().astype(float).nlargest(n_cidades).reset_index()
-        else: # Pedidos com Produto
+        else:
             top_cidades = df_filtrado.groupby('Cidade')['Pedidos com Produto'].sum().astype(float).nlargest(n_cidades).reset_index()
-    else: # Se nenhum produto é filtrado, use os totais da cidade
-        # Para Faturamento Total da Cidade no Mês, a lógica de .first() e .sum() é a que você já tinha e está correta
+    else:
         if metric_cidade == "Faturamento Total da Cidade no Mês":
             top_cidades_agg = df_filtrado.groupby(['Mês', 'Cidade'])['Faturamento Total da Cidade no Mês'].first().reset_index()
             top_cidades = top_cidades_agg.groupby('Cidade')['Faturamento Total da Cidade no Mês'].sum().astype(float).nlargest(n_cidades).reset_index()
         elif metric_cidade == "Unidades Compradas":
-            # CORRIGIDO: Removido o .sum() extra
             top_cidades = df_filtrado.groupby('Cidade')['Unidades Compradas'].sum().astype(float).nlargest(n_cidades).reset_index()
-        else: # Pedidos com Produto
-            # CORRIGIDO: Removido o .sum() extra
+        else:
             top_cidades = df_filtrado.groupby('Cidade')['Pedidos com Produto'].sum().astype(float).nlargest(n_cidades).reset_index()
 
-
-    top_cidades.columns = ['Cidade', 'Total'] # Esta linha é comum a ambos os casos
+    top_cidades.columns = ['Cidade', 'Total']
     fig_top_cidades = px.bar(
         top_cidades,
         x='Total',
@@ -551,21 +546,18 @@ with tab_cidades:
         color='Total',
         color_continuous_scale=px.colors.sequential.Viridis
     )
-    # Formatação do eixo X e TOOLTIP
-if metric_cidade == "Faturamento Total da Cidade no Mês":
-    fig_top_cidades.update_xaxes(tickprefix="R$ ", tickformat=",.2f")  # Mantém R$ com vírgula decimal
-    fig_top_cidades.update_traces(
-        hovertemplate='Cidade: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>'
-    )
 
-elif metric_cidade == "Unidades Compradas":
-    fig_top_cidades.update_xaxes(tickformat="")
-    fig_top_cidades.update_traces(hovertemplate='Cidade: %{y}<br>Unidades: %{x:,.0f}<extra></extra>')
-elif metric_cidade == "Pedidos com Produto":
-    fig_top_cidades.update_xaxes(tickformat="")
-    fig_top_cidades.update_traces(hovertemplate='Cidade: %{y}<br>Pedidos: %{x:,.0f}<extra></extra>')
+    if metric_cidade == "Faturamento Total da Cidade no Mês":
+        fig_top_cidades.update_xaxes(tickprefix="R$ ", tickformat=",.2f")
+        fig_top_cidades.update_traces(hovertemplate='Cidade: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>')
+    elif metric_cidade == "Unidades Compradas":
+        fig_top_cidades.update_xaxes(tickformat=",d")
+        fig_top_cidades.update_traces(hovertemplate='Cidade: %{y}<br>Unidades: %{x:,.0f}<extra></extra>')
+    elif metric_cidade == "Pedidos com Produto":
+        fig_top_cidades.update_xaxes(tickformat=",d")
+        fig_top_cidades.update_traces(hovertemplate='Cidade: %{y}<br>Pedidos: %{x:,.0f}<extra></extra>')
 
-    fig_top_cidades.update_layout(yaxis={'categoryorder':'total ascending'})
+    fig_top_cidades.update_layout(yaxis={'categoryorder': 'total ascending'})
     st.plotly_chart(fig_top_cidades, use_container_width=True)
 
 with tab_estados:
@@ -577,27 +569,23 @@ with tab_estados:
     )
     n_estados = st.slider("Número de Estados no Top N:", min_value=5, max_value=20, value=10, key='n_estados_tab')
 
-    # Agregação correta para Top Estados por Métrica (condicional)
-
-    if selected_produtos: # Se produtos são filtrados, use faturamento/pedidos/unidades dos produtos
+    if selected_produtos:
         if metric_estado == "Faturamento Total da Cidade no Mês":
             top_estados = df_filtrado.groupby('Estado')['Faturamento do Produto'].sum().astype(float).nlargest(n_estados).reset_index()
         elif metric_estado == "Unidades Compradas":
             top_estados = df_filtrado.groupby('Estado')['Unidades Compradas'].sum().astype(float).nlargest(n_estados).reset_index()
-        else: # Pedidos com Produto
+        else:
             top_estados = df_filtrado.groupby('Estado')['Pedidos com Produto'].sum().astype(float).nlargest(n_estados).reset_index()
-    else: # Se nenhum produto é filtrado, use os totais do estado
+    else:
         if metric_estado == "Faturamento Total da Cidade no Mês":
             top_estados_agg = df_filtrado.groupby(['Mês', 'Estado'])['Faturamento Total da Cidade no Mês'].sum().reset_index()
             top_estados = top_estados_agg.groupby('Estado')['Faturamento Total da Cidade no Mês'].sum().astype(float).nlargest(n_estados).reset_index()
         elif metric_estado == "Unidades Compradas":
-            # CORRIGIDO: Removido o .sum() extra
             top_estados = df_filtrado.groupby('Estado')['Unidades Compradas'].sum().astype(float).nlargest(n_estados).reset_index()
-        else: # Pedidos com Produto
-            # CORRIGIDO: Removido o .sum() extra
+        else:
             top_estados = df_filtrado.groupby('Estado')['Pedidos com Produto'].sum().astype(float).nlargest(n_estados).reset_index()
 
-    top_estados.columns = ['Estado', 'Total'] # Esta linha é comum a ambos os casos
+    top_estados.columns = ['Estado', 'Total']
     fig_top_estados = px.bar(
         top_estados,
         x='Total',
@@ -608,21 +596,18 @@ with tab_estados:
         color='Total',
         color_continuous_scale=px.colors.sequential.Cividis
     )
-    # Formatação do eixo X e TOOLTIP
-if metric_estado == "Faturamento Total da Cidade no Mês":
-    fig_top_estados.update_xaxes(tickprefix="R$ ", tickformat=",.2f")
-    fig_top_estados.update_traces(
-        hovertemplate='Estado: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>'
-    )
 
-elif metric_estado == "Unidades Compradas":
-    fig_top_estados.update_xaxes(tickformat="")
-    fig_top_estados.update_traces(hovertemplate='Estado: %{y}<br>Unidades: %{x:,.0f}<extra></extra>')
-elif metric_estado == "Pedidos com Produto":
-    fig_top_estados.update_xaxes(tickformat="")
-    fig_top_estados.update_traces(hovertemplate='Estado: %{y}<br>Pedidos: %{x:,.0f}<extra></extra>')
+    if metric_estado == "Faturamento Total da Cidade no Mês":
+        fig_top_estados.update_xaxes(tickprefix="R$ ", tickformat=",.2f")
+        fig_top_estados.update_traces(hovertemplate='Estado: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>')
+    elif metric_estado == "Unidades Compradas":
+        fig_top_estados.update_xaxes(tickformat=",d")
+        fig_top_estados.update_traces(hovertemplate='Estado: %{y}<br>Unidades: %{x:,.0f}<extra></extra>')
+    elif metric_estado == "Pedidos com Produto":
+        fig_top_estados.update_xaxes(tickformat=",d")
+        fig_top_estados.update_traces(hovertemplate='Estado: %{y}<br>Pedidos: %{x:,.0f}<extra></extra>')
 
-    fig_top_estados.update_layout(yaxis={'categoryorder':'total ascending'})
+    fig_top_estados.update_layout(yaxis={'categoryorder': 'total ascending'})
     st.plotly_chart(fig_top_estados, use_container_width=True)
 
 st.markdown("---")
