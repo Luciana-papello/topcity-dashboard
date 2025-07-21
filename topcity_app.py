@@ -8,6 +8,8 @@ import io
 # Assegure-se de que 'column_mapping.py' esteja na mesma pasta
 from column_mapping import column_mapping
 import openai
+from pandasai import SmartDataframe
+from pandasai.llm.openai import OpenAI
 
 # Helper function for Brazilian currency formatting (dot for thousands, comma for decimals)
 def format_currency_br(value):
@@ -861,50 +863,52 @@ with col2:
             file_name=f"resumo_executivo_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
             mime="text/csv"
         )
-
-# --- NOVO: CHAT DIRETO COM OS DADOS USANDO PANDASAI --- #
-from pandasai import SmartDataframe
-from pandasai.llm.openai import OpenAI
+    
 
 st.markdown("---")
 st.header("🧠 Chat com os Dados Reais (via pandasai)")
 
+# Verifica se a chave da API está no secrets.toml
 try:
     openai_api_key = st.secrets["openai_api_key"]
 except Exception:
     st.error("Erro: Chave da OpenAI não encontrada.")
     st.stop()
 
-query = st.chat_input("Pergunte livremente sobre os dados filtrados...")
+# Garante que df_filtrado está carregado
+if "df_filtrado" not in locals() or df_filtrado is None or df_filtrado.empty:
+    st.warning("O DataFrame filtrado está vazio ou não foi carregado ainda.")
+else:
+    pergunta = st.chat_input("Pergunte algo diretamente sobre os dados filtrados...")
 
-if query:
-    with st.spinner("Analisando os dados filtrados..."):
-        try:
-            # Prompt melhorado: orienta o modelo sobre estilo, idioma e foco
-            custom_prompt = f"""
-Você é um analista de dados especialista em vendas da empresa Papello. 
-Responda sempre em português, com clareza, objetividade e com base no DataFrame de vendas que será analisado abaixo.
+    if pergunta:
+        with st.spinner("Consultando os dados..."):
+            try:
+                # Prompt personalizado e claro
+                custom_prompt = f'''
+Você é um assistente de dados da empresa Papello. Responda sempre em português, com clareza e objetividade.
+Baseie suas respostas exclusivamente nos dados contidos no DataFrame fornecido (`df_filtrado`).
 
-Se a pergunta envolver produtos, cidades, estados ou meses, use apenas os dados atualmente filtrados (armazenados no DataFrame chamado `df_filtrado`). 
-Evite "chutar" informações: se não puder responder com base no DataFrame atual, diga que os dados disponíveis não permitem.
+⚠️ Importante:
+- Use apenas os dados filtrados (já aplicados no app).
+- Se não houver informação suficiente, avise o usuário que a análise não é possível.
 
-💡 Formatação:
-- Use sempre o formato R$ 1.234,56 para valores monetários.
-- Use ponto (.) como separador de milhar para inteiros.
-- Use vírgula e duas casas decimais para porcentagens (%).
+🧾 Formatação:
+- Valores em R$ no formato R$ 1.234,56.
+- Números inteiros com ponto no milhar.
+- Porcentagens com vírgula e duas casas decimais.
+'''
 
-Se a pergunta for genérica, tente responder com base em estatísticas, agrupamentos ou totais do DataFrame.
-"""
+                llm = OpenAI(api_token=openai_api_key)
+                sdf = SmartDataframe(df_filtrado, config={
+                    "llm": llm,
+                    "custom_prompt": custom_prompt,
+                    "enable_cache": False,
+                    "verbose": False
+                })
 
-            llm = OpenAI(api_token=openai_api_key)
-            sdf = SmartDataframe(df_filtrado, config={
-                "llm": llm,
-                "custom_prompt": custom_prompt,
-                "enable_cache": False,
-                "verbose": False,
-            })
-            resposta = sdf.chat(query)
-            st.success("Resposta baseada nos dados filtrados:")
-            st.markdown(resposta)
-        except Exception as e:
-            st.error(f"Erro ao processar a pergunta: {e}")
+                resposta = sdf.chat(pergunta)
+                st.success("Resposta gerada com base nos dados filtrados:")
+                st.markdown(resposta)
+            except Exception as e:
+                st.error(f"Ocorreu um erro ao processar a pergunta: {e}")
