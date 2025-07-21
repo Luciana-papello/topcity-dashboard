@@ -39,27 +39,26 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Pega a senha do arquivo secrets
+# Pega a senha do secrets
 senha_correta = st.secrets["app_password"]
 
-# Inicializa controle de sessão
+# Inicializa controle
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
 # Tela de login
 if not st.session_state.autenticado:
-    with st.container():
-        st.markdown("## 🔐 Acesso Restrito")
-        senha = st.text_input("Digite a senha para acessar:", type="password")
+    st.markdown("## 🔐 Acesso Restrito")
+    senha = st.text_input("Digite a senha para acessar:", type="password")
 
-        if senha == senha_correta:
-            st.session_state.autenticado = True
-            st.success("✅ Acesso liberado com sucesso!")
-            st.markdown("<meta http-equiv='refresh' content='0'>", unsafe_allow_html=True)
-            st.stop()
-        elif senha != "":
-            st.error("❌ Senha incorreta. Tente novamente.")
+    if senha == senha_correta:
+        st.session_state.autenticado = True
+        st.success("✅ Acesso liberado com sucesso!")
+        st.experimental_rerun()  # <- recarrega com sessão válida
+    elif senha:
+        st.error("❌ Senha incorreta. Tente novamente.")
     st.stop()
+
 
 # ✅ Conteúdo protegido: só aparece após login
 st.markdown("# 📊 Dashboard de Análise de Produtos e Cidades")
