@@ -386,7 +386,7 @@ with tab_produtos:
         fig_top_produtos.update_traces(hovertemplate='Produto: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>')
     elif metric_produto == "Unidades Compradas":
         fig_top_produtos.update_xaxes(tickformat=",f")
-        fig_top_produtos.update_traces(hovertemplate='Produto: %{y}<br>Unidades: %{x:,f}<extra></extra>')
+        fig_top_produtos.update_traces(hovertemplate='Produto: %{y}<br>Unidades: %{x:,}<extra></extra>')
 
     fig_top_produtos.update_layout(yaxis={'categoryorder': 'total ascending'})
     st.plotly_chart(fig_top_produtos, use_container_width=True)
