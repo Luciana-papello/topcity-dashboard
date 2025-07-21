@@ -473,8 +473,8 @@ with tab_produtos:
                 line_shape='linear'
             )
             fig_prod_tempo_unid.update_xaxes(dtick="M1", tickformat="%Y-%m")
-            fig_prod_tempo_unid.update_yaxes(tickformat=",f") # US locale for integer separator
-            fig_prod_tempo_unid.update_traces(hovertemplate='Mês: %{x|%Y-%m}<br>Produto: %{fullData.name}<br>Unidades: %{y:,f}<extra></extra>')
+            fig_prod_tempo_unid.update_layout(tickformat=",f")
+            fig_prod_tempo_unid.update_traces(hovertemplate='Mês: %{x|%Y-%m}<br>Produto: %{fullData.name}<br>Unidades: %{y:,.0f}<extra></extra>')
             st.plotly_chart(fig_prod_tempo_unid, use_container_width=True)
 #INSIGTHS 
             st.subheader("🔍 Insights Automáticos: Variação Mês a Mês dos Produtos")
@@ -550,15 +550,23 @@ with tab_cidades:
         color_continuous_scale=px.colors.sequential.Viridis
     )
     # Formatação do eixo X e TOOLTIP
-    if metric_cidade == "Faturamento Total da Cidade no Mês":
-        fig_top_cidades.update_xaxes(tickprefix="R$ ", tickformat=",.2f") # US locale for numbers, R$ prefix
-        fig_top_cidades.update_traces(hovertemplate='Cidade: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>')
-    elif metric_cidade == "Unidades Compradas":
-        fig_top_cidades.update_xaxes(tickformat=",f") # US locale for integer separator
-        fig_top_cidades.update_traces(hovertemplate='Cidade: %{y}<br>Unidades: %{x:,f}<extra></extra>')
-    elif metric_cidade == "Pedidos com Produto":
-        fig_top_cidades.update_xaxes(tickformat=",f") # US locale for integer separator
-        fig_top_cidades.update_traces(hovertemplate='Cidade: %{y}<br>Pedidos: %{x:,f}<extra></extra>')
+if metric_cidade == "Faturamento Total da Cidade no Mês":
+    fig_top_cidades.update_xaxes(tickprefix="R$ ", tickformat=",.2f")  # Mantém R$ com vírgula decimal
+    fig_top_cidades.update_traces(
+        hovertemplate='Cidade: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>'
+    )
+
+elif metric_cidade == "Unidades Compradas":
+    fig_top_cidades.update_xaxes(tickformat="")  # Remove o padrão americano
+    fig_top_cidades.update_traces(
+        hovertemplate='Cidade: %{y}<br>Unidades: %{x:,.0f}<extra></extra>'
+    )
+
+elif metric_cidade == "Pedidos com Produto":
+    fig_top_cidades.update_xaxes(tickformat="")  # Remove o padrão americano
+    fig_top_cidades.update_traces(
+        hovertemplate='Cidade: %{y}<br>Pedidos: %{x:,.0f}<extra></extra>'
+    )
 
     fig_top_cidades.update_layout(yaxis={'categoryorder':'total ascending'})
     st.plotly_chart(fig_top_cidades, use_container_width=True)
@@ -604,15 +612,23 @@ with tab_estados:
         color_continuous_scale=px.colors.sequential.Cividis
     )
     # Formatação do eixo X e TOOLTIP
-    if metric_estado == "Faturamento Total da Cidade no Mês":
-        fig_top_estados.update_xaxes(tickprefix="R$ ", tickformat=",.2f") # US locale for numbers, R$ prefix
-        fig_top_estados.update_traces(hovertemplate='Estado: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>')
-    elif metric_estado == "Unidades Compradas":
-        fig_top_estados.update_xaxes(tickformat=",f") # US locale for integer separator
-        fig_top_estados.update_traces(hovertemplate='Estado: %{y}<br>Unidades: %{x:,f}<extra></extra>')
-    elif metric_estado == "Pedidos com Produto":
-        fig_top_estados.update_xaxes(tickformat=",f") # US locale for integer separator
-        fig_top_estados.update_traces(hovertemplate='Estado: %{y}<br>Pedidos: %{x:,f}<extra></extra>')
+if metric_estado == "Faturamento Total da Cidade no Mês":
+    fig_top_estados.update_xaxes(tickprefix="R$ ", tickformat=",.2f")
+    fig_top_estados.update_traces(
+        hovertemplate='Estado: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>'
+    )
+
+elif metric_estado == "Unidades Compradas":
+    fig_top_estados.update_xaxes(tickformat="")  # Remove formato americano
+    fig_top_estados.update_traces(
+        hovertemplate='Estado: %{y}<br>Unidades: %{x:,.0f}<extra></extra>'
+    )
+
+elif metric_estado == "Pedidos com Produto":
+    fig_top_estados.update_xaxes(tickformat="")  # Remove formato americano
+    fig_top_estados.update_traces(
+        hovertemplate='Estado: %{y}<br>Pedidos: %{x:,.0f}<extra></extra>'
+    )
 
     fig_top_estados.update_layout(yaxis={'categoryorder':'total ascending'})
     st.plotly_chart(fig_top_estados, use_container_width=True)
