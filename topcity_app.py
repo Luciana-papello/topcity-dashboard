@@ -29,15 +29,7 @@ def format_integer_br(value):
     s_value = s_value.replace(",", "X").replace(".", ",").replace("X", ".")
     return s_value
 
-import streamlit as st
 
-# Configuração da página
-st.set_page_config(
-    page_title="Dashboard TopCity",
-    page_icon="🏙️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Pega a senha do secrets
 senha_correta = st.secrets["app_password"]
@@ -46,7 +38,7 @@ senha_correta = st.secrets["app_password"]
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
-# Tela de login
+# Se não autenticado, pede a senha
 if not st.session_state.autenticado:
     st.markdown("## 🔐 Acesso Restrito")
     senha = st.text_input("Digite a senha para acessar:", type="password")
@@ -54,8 +46,10 @@ if not st.session_state.autenticado:
     if senha == senha_correta:
         st.session_state.autenticado = True
         st.success("✅ Acesso liberado com sucesso!")
-        st.experimental_rerun()  # <- recarrega com sessão válida
-    elif senha:
+        # Simula recarregamento com HTML para atualizar a interface
+        st.markdown("<meta http-equiv='refresh' content='0'>", unsafe_allow_html=True)
+        st.stop()
+    elif senha != "":
         st.error("❌ Senha incorreta. Tente novamente.")
     st.stop()
 
