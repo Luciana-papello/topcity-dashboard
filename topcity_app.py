@@ -326,15 +326,13 @@ with col2:
     st.markdown(f"""
     <div class="metric-card">
         <div class="metric-title">Total Pedidos</div>
-        <div class="metric-value">{format_integer_br(total_pedidos_kpi)}</div>
-    </div>
+        <div class="metric-value">{format_integer_br(total_pedidos_kpi)}</div> </div>
     """, unsafe_allow_html=True)
 with col3:
     st.markdown(f"""
     <div class="metric-card">
         <div class="metric-title">Unidades Compradas</div>
-        <div class="metric-value">{format_integer_br(total_unidades_fisicas)}</div>
-    </div>
+        <div class="metric-value">{format_integer_br(total_unidades_fisicas)}</div> </div>
     """, unsafe_allow_html=True)
 with col4:
     st.markdown(f"""
@@ -823,9 +821,9 @@ with col2:
         # Formata colunas para o CSV de resumo
         resumo_final['Mês'] = resumo_final['Mês'].dt.strftime('%Y-%m')
         resumo_final['Faturamento Total Produtos Selecionados'] = resumo_final['Faturamento Total Produtos Selecionados'].apply(format_currency_br)
-        resumo_final['Unidades Compradas Produtos Selecionados'] = resumo_final['Unidades Compradas Produtos Selecionados'].apply(format_integer_br)
-        resumo_final['Pedidos com Produtos Selecionados'] = resumo_final['Pedidos com Produtos Selecionados'].apply(format_integer_br)
-        resumo_final['Total de Pedidos da Cidade no Mês'] = resumo_final['Total de Pedidos da Cidade no Mês'].apply(format_integer_br)
+        resumo_final['Unidades Compradas Produtos Selecionados'] = resumo_final['Unidades Compradas Produtos Selecionados'].apply(format_integer_br) # APLICAR AQUI
+        resumo_final['Pedidos com Produtos Selecionados'] = resumo_final['Pedidos com Produtos Selecionados'].apply(format_integer_br) # APLICAR AQUI
+        resumo_final['Total de Pedidos da Cidade no Mês'] = resumo_final['Total de Pedidos da Cidade no Mês'].apply(format_integer_br) # APLICAR AQUI
         resumo_final['Faturamento Total da Cidade no Mês'] = resumo_final['Faturamento Total da Cidade no Mês'].apply(format_currency_br)
         resumo_final['Participação Faturamento Cidade Mês (%)'] = resumo_final['Participação Faturamento Cidade Mês (%)'].apply(lambda x: f"{x:,.2f}%")
         resumo_final['Participação Pedidos Cidade Mês (%)'] = resumo_final['Participação Pedidos Cidade Mês (%)'].apply(lambda x: f"{x:,.2f}%")
