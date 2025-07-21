@@ -54,9 +54,6 @@ if not st.session_state.autenticado:
     st.stop()
 
 
-# ✅ Conteúdo protegido: só aparece após login
-st.markdown("# 📊 Dashboard de Análise de Produtos e Cidades")
-
 # CSS personalizado para visual mais bonito
 st.markdown("""
 <style>
