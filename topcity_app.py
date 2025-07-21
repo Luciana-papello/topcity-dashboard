@@ -36,9 +36,7 @@ def format_integer_br(value):
 # --- INÍCIO DO NOVO BLOCO DE AUTENTICAÇÃO (PARA INSERIR) ---
 
 # Crie uma instância do gerenciador de cookies.
-# A 'key' é usada para segurança. É bom colocá-la nos secrets do Streamlit.
-cookie_key = st.secrets.get("cookie_key", "minha_chave_secreta_padrao")
-cookies = CookieManager(key=str(cookie_key))
+cookies = CookieManager(key="chave_de_teste_simples")
 
 # Pega a senha correta dos secrets do Streamlit
 senha_correta = st.secrets["app_password"]
