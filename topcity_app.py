@@ -75,22 +75,25 @@ if not st.session_state.autenticado:
     st.stop()
 
 # Controle de autenticação na sessão
+# Verifica se usuário está autenticado
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
-# Se não estiver autenticado, mostra campo de senha
 if not st.session_state.autenticado:
-    with st.container():
-        st.markdown("### 🔐 Acesso Restrito")
-        senha = st.text_input("Digite a senha para acessar o dashboard:", type="password")
-        if senha == senha_correta:
-            st.session_state.autenticado = True
-            st.success("✅ Acesso liberado com sucesso!")
-            st.rerun()
+    st.markdown("### 🔐 Acesso Restrito")
+    senha = st.text_input("Digite a senha para acessar:", type="password")
+    
+    if senha == senha_correta:
+        st.session_state.autenticado = True
+        st.success("✅ Acesso liberado com sucesso!")
 
-        elif senha != "":
-            st.error("❌ Senha incorreta. Tente novamente.")
-    st.stop() 
+        # Força um "refresh" visual simulando redirecionamento
+        st.markdown("""<meta http-equiv="refresh" content="0">""", unsafe_allow_html=True)
+        st.stop()
+
+    elif senha != "":
+        st.error("❌ Senha incorreta. Tente novamente.")
+        st.stop() 
 # CSS personalizado para visual mais bonito
 st.markdown("""
 <style>
