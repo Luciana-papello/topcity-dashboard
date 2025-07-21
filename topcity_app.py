@@ -36,7 +36,43 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-senha_correta = st.secrets["app_password"]
+
+# --- Senha segura vinda do secrets
+senha_correta = st.secrets.get("app_password", "papello123")
+
+# --- Inicializa controle de autenticação
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+
+# --- Mostra formulário se não autenticado
+if not st.session_state.autenticado:
+    with st.container():
+        st.markdown("""
+            <style>
+            .login-box {
+                background-color: #f9f9f9;
+                padding: 2rem;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                max-width: 400px;
+                margin: auto;
+            }
+            </style>
+            <div class="login-box">
+            <h3>🔐 Acesso Restrito</h3>
+        """, unsafe_allow_html=True)
+        
+        senha = st.text_input("Digite a senha para acessar:", type="password")
+
+        if senha == senha_correta:
+            st.session_state.autenticado = True
+            st.success("✅ Acesso liberado com sucesso!")
+            st.experimental_rerun()
+        elif senha:
+            st.error("❌ Senha incorreta. Tente novamente.")
+
+        st.markdown("</div>", unsafe_allow_html=True)
+    st.stop()
 
 # Controle de autenticação na sessão
 if "autenticado" not in st.session_state:
