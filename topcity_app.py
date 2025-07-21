@@ -37,7 +37,8 @@ def format_integer_br(value):
 
 # Crie uma instância do gerenciador de cookies.
 # A 'key' é usada para segurança. É bom colocá-la nos secrets do Streamlit.
-cookies = CookieManager(key=st.secrets.get("cookie_key", "minha_chave_secreta_padrao"))
+cookie_key = st.secrets.get("cookie_key", "minha_chave_secreta_padrao")
+cookies = CookieManager(key=str(cookie_key))
 
 # Pega a senha correta dos secrets do Streamlit
 senha_correta = st.secrets["app_password"]
