@@ -367,7 +367,6 @@ with tab_produtos:
     )
     n_produtos = st.slider("Número de Produtos no Top N:", min_value=5, max_value=20, value=10, key='n_produtos_tab')
 
-    # Garante que a soma é numérica para nlargest
     top_produtos = df_filtrado.groupby('Produto')[metric_produto].sum().astype(float).nlargest(n_produtos).reset_index()
     top_produtos.columns = ['Produto', 'Total']
 
@@ -381,23 +380,21 @@ with tab_produtos:
         color='Total',
         color_continuous_scale=px.colors.sequential.Plasma
     )
-    # Formatação do eixo X e TOOLTIP
+
     if metric_produto == "Faturamento do Produto":
-        fig_top_produtos.update_xaxes(tickprefix="R$ ", tickformat=",.2f") # US locale for numbers, R$ prefix
+        fig_top_produtos.update_xaxes(tickprefix="R$ ", tickformat=",.2f")
         fig_top_produtos.update_traces(hovertemplate='Produto: %{y}<br>Faturamento: R$ %{x:,.2f}<extra></extra>')
     elif metric_produto == "Unidades Compradas":
-        fig_top_produtos.update_xaxes(tickformat=",f") # US locale for integer separator
+        fig_top_produtos.update_xaxes(tickformat=",f")
         fig_top_produtos.update_traces(hovertemplate='Produto: %{y}<br>Unidades: %{x:,f}<extra></extra>')
 
-    fig_top_produtos.update_layout(yaxis={'categoryorder':'total ascending'})
+    fig_top_produtos.update_layout(yaxis={'categoryorder': 'total ascending'})
     st.plotly_chart(fig_top_produtos, use_container_width=True)
 
     st.subheader("Evolução do Desempenho dos Produtos ao Longo do Tempo")
 
-    # Filtro de Data INDIVIDUAL para a Evolução de Produtos (multiselect de meses)
     all_months_prod_evol = sorted(df['Mês'].dt.to_period('M').unique().to_timestamp().tolist())
-
-    default_prod_evol_month_selection = all_months_prod_evol # Valor padrão: Seleciona todos os meses
+    default_prod_evol_month_selection = all_months_prod_evol
 
     selected_prod_evol_months = st.multiselect(
         "Selecione o(s) Mês(es) para Evolução dos Produtos",
@@ -409,20 +406,15 @@ with tab_produtos:
 
     df_filtered_for_prod_evol = df.copy()
 
-    # Aplica o filtro de meses selecionados para a evolução
     if selected_prod_evol_months:
         df_filtered_for_prod_evol = df_filtered_for_prod_evol[df_filtered_for_prod_evol['Mês'].isin(selected_prod_evol_months)]
 
-    # Aplica os filtros GLOBAIS de Cidade/Estado/Produto ao df_filtered_for_prod_evol também
     if selected_estados:
         df_filtered_for_prod_evol = df_filtered_for_prod_evol[df_filtered_for_prod_evol['Estado'].isin(selected_estados)]
     if selected_cidades:
         df_filtered_for_prod_evol = df_filtered_for_prod_evol[df_filtered_for_prod_evol['Cidade'].isin(selected_cidades)]
 
-    if selected_produtos:
-        df_filtered_for_prod_evol = df_filtered_for_prod_evol[df_filtered_for_prod_evol['Produto'].isin(selected_produtos)]
-    elif not top_produtos.empty:
-           df_filtered_for_prod_evol = df_filtered_for_prod_evol[df_filtered_for_prod_evol['Produto'].isin(top_produtos['Produto'].tolist())]
+    # 🔁 NÃO filtra por selected_produtos aqui para não limitar a lista do multiselect
 
     if df_filtered_for_prod_evol.empty:
         st.info("Nenhum dado para mostrar na evolução de produtos com os filtros selecionados.")
@@ -438,11 +430,13 @@ with tab_produtos:
             key='produtos_para_linha_filter'
         )
 
+        # ✅ Agora sim aplica o filtro para os produtos selecionados
         if produtos_para_linha:
-            df_produtos_tempo = df_filtered_for_prod_evol[df_filtered_for_prod_evol['Produto'].isin(produtos_para_linha)].groupby(['Mês', 'Produto']).agg(
+            df_filtered_for_prod_evol = df_filtered_for_prod_evol[df_filtered_for_prod_evol['Produto'].isin(produtos_para_linha)]
+
+            df_produtos_tempo = df_filtered_for_prod_evol.groupby(['Mês', 'Produto']).agg(
                 faturamento=('Faturamento do Produto', 'sum'),
                 unidades_compradas=('Unidades Compradas', 'sum')
-            
             ).reset_index()
             # Adiciona colunas com média móvel de 3 meses
             df_produtos_tempo['faturamento_mm3'] = df_produtos_tempo.groupby('Produto')['faturamento'].transform(lambda x: x.rolling(3, min_periods=1).mean())
