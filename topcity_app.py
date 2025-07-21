@@ -7,8 +7,6 @@ import numpy as np
 import io
 # Assegure-se de que 'column_mapping.py' esteja na mesma pasta
 from column_mapping import column_mapping
-import time
-from streamlit_cookies_manager import CookieManager
 
 # Helper function for Brazilian currency formatting (dot for thousands, comma for decimals)
 def format_currency_br(value):
@@ -31,50 +29,32 @@ def format_integer_br(value):
     s_value = s_value.replace(",", "X").replace(".", ",").replace("X", ".")
     return s_value
 
-
-
-# --- INÍCIO DO NOVO BLOCO DE AUTENTICAÇÃO (PARA INSERIR) ---
-
-# Crie uma instância do gerenciador de cookies.
-cookies = CookieManager(key="chave_de_teste_simples")
-
-# Pega a senha correta dos secrets do Streamlit
+# Configuração da página
+st.set_page_config(
+    page_title="Dashboard TopCity", 
+    page_icon="🏙️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 senha_correta = st.secrets["app_password"]
 
-# Inicializa o estado de autenticação na sessão, se ainda não existir
+# Controle de autenticação na sessão
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
-# 1. Tenta verificar o login através do cookie primeiro
-# O nome do cookie ('topcity_app_cookie') pode ser qualquer um.
-if cookies.get('topcity_app_cookie') == senha_correta:
-    st.session_state.autenticado = True
-
-# 2. Se não estiver autenticado, mostra o formulário de login
+# Se não estiver autenticado, mostra campo de senha
 if not st.session_state.autenticado:
-    st.markdown("## 🔐 Acesso Restrito")
-    senha_digitada = st.text_input("Digite a senha para acessar:", type="password", key="senha_input")
-
-    if st.button("Entrar"):
-        if senha_digitada == senha_correta:
-            # 3. Se a senha estiver correta, define o estado e o cookie
+    with st.container():
+        st.markdown("### 🔐 Acesso Restrito")
+        senha = st.text_input("Digite a senha para acessar o dashboard:", type="password")
+        if senha == senha_correta:
             st.session_state.autenticado = True
-            
-            # Define o cookie para expirar em 30 dias (2592000 segundos)
-            cookies.set('topcity_app_cookie', senha_correta, expires_in=2592000)
-            
-            st.success("✅ Acesso liberado! Carregando o dashboard...")
-            time.sleep(1)
-            st.rerun() # Recarrega a página da forma correta
-        
-        elif senha_digitada != "":
+            st.success("✅ Acesso liberado com sucesso!")
+            st.rerun()
+
+        elif senha != "":
             st.error("❌ Senha incorreta. Tente novamente.")
-            
-    # Impede que o resto do app seja renderizado se o login não for feito
-    st.stop()
-
-# --- FIM DO NOVO BLOCO ---
-
+    st.stop() 
 # CSS personalizado para visual mais bonito
 st.markdown("""
 <style>
