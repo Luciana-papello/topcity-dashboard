@@ -1,3 +1,16 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from datetime import datetime, timedelta
+import numpy as np
+import io
+# Assegure-se de que 'column_mapping.py' esteja na mesma pasta
+from column_mapping import column_mapping
+import openai
+from pandasai import SmartDataframe
+from pandasai.llm.openai import OpenAI
+
 # Adicione este bloco logo após as importações
 import streamlit as st
 import sys
@@ -18,20 +31,6 @@ for pkg in required_packages:
         st.error(f"❌ {pkg} is NOT installed.")
 
 st.write("--- End of Debug Block ---")
-
-
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from datetime import datetime, timedelta
-import numpy as np
-import io
-# Assegure-se de que 'column_mapping.py' esteja na mesma pasta
-from column_mapping import column_mapping
-import openai
-from pandasai import SmartDataframe
-from pandasai.llm.openai import OpenAI
 
 # Helper function for Brazilian currency formatting (dot for thousands, comma for decimals)
 def format_currency_br(value):
