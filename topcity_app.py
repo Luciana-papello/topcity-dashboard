@@ -1,3 +1,25 @@
+# Adicione este bloco logo após as importações
+import streamlit as st
+import sys
+import pkg_resources
+
+st.write("## Debugging Environment")
+st.write(f"**Python Version:** {sys.version}")
+
+installed_packages = {pkg.key for pkg in pkg_resources.working_set}
+required_packages = ['streamlit', 'pandas', 'numpy', 'plotly', 'openai', 'pandasai']
+
+st.write("### Checking Required Packages:")
+for pkg in required_packages:
+    if pkg in installed_packages:
+        version = pkg_resources.get_distribution(pkg).version
+        st.success(f"✅ {pkg} (Version: {version}) is installed.")
+    else:
+        st.error(f"❌ {pkg} is NOT installed.")
+
+st.write("--- End of Debug Block ---")
+
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
